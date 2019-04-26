@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity  {
     //method to implement the different Textviews widget and display the message on
     //the Scrollview LinearLayout...
     public TextView textView(String message, int color) {
+
+        //it checks if the message is empty then displays empty message
         if (null == message || message.trim().isEmpty()) {
             message = "<Empty Message>";
         }
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity  {
         return tv;
     }
 
+    //showMessage method to handle posting of mesage to the textView
     public void showMessage(final String message, final int color) {
         handler.post(new Runnable() {
             @Override
@@ -82,11 +85,14 @@ public class MainActivity extends AppCompatActivity  {
         });
     }
 
-
+    //onClick method to handle clicking events whether to start up the  server or
+    //send a message to the client
     public void onClick(View view) {
         if (view.getId() == R.id.start_server) {
             msgList.removeAllViews();
             showMessage("Server Started.", Color.BLACK);
+
+            //this initiates the serverthread defined later and starts the thread
             this.serverThread = new Thread(new ServerThread());
             this.serverThread.start();
             return;
@@ -98,6 +104,8 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+
+    //method implemented to send message to the client
     private void sendMessage(final String message) {
         try {
             if (null != tempClientSocket) {
@@ -121,17 +129,22 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    //serverthread method implemented here to activate the server network
     class ServerThread implements Runnable {
 
         public void run() {
             Socket socket;
             try {
                 serverSocket = new ServerSocket(SERVER_PORT);
+
+                //deactivates the visibility of the button
                 findViewById(R.id.start_server).setVisibility(View.GONE);
             } catch (IOException e) {
                 e.printStackTrace();
                 showMessage("Error Starting Server : " + e.getMessage(), Color.RED);
             }
+
+            //communicates to client and displays error if communication fails
             if (null != serverSocket) {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
