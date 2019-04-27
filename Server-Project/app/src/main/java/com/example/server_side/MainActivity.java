@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
-    //serverthread method implemented here to activate the server network
+    /* serverthread method implemented here to activate the server network */
     class ServerThread implements Runnable {
 
         public void run() {
@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    /* communicationThread class that implements the runnable class to communicate with the client */
     class CommunicationThread implements Runnable {
 
         private Socket clientSocket;
@@ -199,11 +200,14 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
+
+    //getTime method implemented to format the date into H:m:s
     String getTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         return sdf.format(new Date());
     }
 
+    //personally described onDestroy method to disconnect from the network on destroy of the activity
     @Override
     protected void onDestroy() {
         super.onDestroy();
