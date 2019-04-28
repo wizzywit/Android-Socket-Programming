@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity  {
 
         //This sets the initial content view that would be displayed
         setContentView(R.layout.activity_main);
-        setTitle("Server");
+        setTitle("Server-Side Endpoint");
 
         //initializes the identifier greenColor to be used anywhere within this file
         greenColor = ContextCompat.getColor(this, R.color.green);
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity  {
 
     //method to implement the different Textviews widget and display the message on
     //the Scrollview LinearLayout...
-    public TextView textView(String message, int color) {
+    public TextView textView(String message, int color, Boolean value) {
 
         //it checks if the message is empty then displays empty message
         if (null == message || message.trim().isEmpty()) {
@@ -72,15 +73,18 @@ public class MainActivity extends AppCompatActivity  {
         tv.setText(message + " [" + getTime() +"]");
         tv.setTextSize(20);
         tv.setPadding(0, 5, 0, 0);
+        if (value) {
+            tv.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+        }
         return tv;
     }
 
     //showMessage method to handle posting of mesage to the textView
-    public void showMessage(final String message, final int color) {
+    public void showMessage(final String message, final int color, final Boolean value) {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                msgList.addView(textView(message, color));
+                msgList.addView(textView(message, color, value));
             }
         });
     }
@@ -90,17 +94,23 @@ public class MainActivity extends AppCompatActivity  {
     public void onClick(View view) {
         if (view.getId() == R.id.start_server) {
             msgList.removeAllViews();
-            showMessage("Server Started.", Color.BLACK);
+            showMessage("Server Started.", Color.BLACK, false);
 
             //this initiates the serverthread defined later and starts the thread
             this.serverThread = new Thread(new ServerThread());
             this.serverThread.start();
+            view.setVisibility(View.GONE);
             return;
         }
         if (view.getId() == R.id.send_data) {
             String msg = edMessage.getText().toString().trim();
-            showMessage("Server : " + msg, Color.BLUE);
-            sendMessage(msg);
+            showMessage("Server : " + msg, Color.BLUE, false);
+            if (msg != null) {
+
+                sendMessage(msg);
+            }
+            edMessage.setText("");
+            return;
         }
     }
 
@@ -138,10 +148,11 @@ public class MainActivity extends AppCompatActivity  {
                 serverSocket = new ServerSocket(SERVER_PORT);
 
                 //deactivates the visibility of the button
-                findViewById(R.id.start_server).setVisibility(View.GONE);
+//               Button button = (Button) findViewById(R.id.start_server);
+//               button.setVisibility(View.GONE);
             } catch (IOException e) {
                 e.printStackTrace();
-                showMessage("Error Starting Server : " + e.getMessage(), Color.RED);
+                showMessage("Error Starting Server : " + e.getMessage(), Color.RED, false);
             }
 
             //communicates to client and displays error if communication fails
@@ -153,7 +164,7 @@ public class MainActivity extends AppCompatActivity  {
                         new Thread(commThread).start();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        showMessage("Error Communicating to Client :" + e.getMessage(), Color.RED);
+                        showMessage("Error Communicating to Client :" + e.getMessage(), Color.RED, false);
                     }
                 }
             }
@@ -174,23 +185,25 @@ public class MainActivity extends AppCompatActivity  {
                 this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
             } catch (IOException e) {
                 e.printStackTrace();
-                showMessage("Error Connecting to Client!!", Color.RED);
+                showMessage("Error Connecting to Client!!", Color.RED, false);
             }
-            showMessage("Connected to Client!!", greenColor);
+            showMessage("Connected to Client!!", greenColor, false);
         }
 
         public void run() {
 
             while (!Thread.currentThread().isInterrupted()) {
                 try {
+
+                    //checks to see if the client is still connected and displays disconnected if disconnected
                     String read = input.readLine();
                     if (null == read || "Disconnect".contentEquals(read)) {
                         Thread.interrupted();
-                        read = "Client Disconnected";
-                        showMessage("Client : " + read, greenColor);
+                        read = "Lost Communication with Client....";
+                        showMessage("Client : " + read, greenColor, true);
                         break;
                     }
-                    showMessage("Client : " + read, greenColor);
+                    showMessage("Client : " + read, greenColor, true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

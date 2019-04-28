@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         edMessage = findViewById(R.id.edMessage);
     }
 
-    public TextView textView(String message, int color) {
+    public TextView textView(String message, int color, Boolean value) {
         if (null == message || message.trim().isEmpty()) {
             message = "<Empty Message>";
         }
@@ -56,14 +57,19 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(message + " [" + getTime() + "]");
         tv.setTextSize(20);
         tv.setPadding(0, 5, 0, 0);
+        tv.setLayoutParams(new LinearLayout.LayoutParams
+                (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 0));
+        if (value) {
+            tv.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+        }
         return tv;
     }
 
-    public void showMessage(final String message, final int color) {
+    public void showMessage(final String message, final int color, final Boolean value) {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                msgList.addView(textView(message, color));
+                msgList.addView(textView(message, color, value));
             }
         });
     }
@@ -72,24 +78,28 @@ public class MainActivity extends AppCompatActivity {
 
         if (view.getId() == R.id.connect_server) {
             msgList.removeAllViews();
-            showMessage("Connecting to Server...", clientTextColor);
+            showMessage("Connecting to Server...", clientTextColor, true);
             clientThread = new ClientThread();
             thread = new Thread(clientThread);
             thread.start();
-            showMessage("Connected to Server...", clientTextColor);
+            showMessage("Connected to Server...", clientTextColor, true);
             return;
         }
 
         if (view.getId() == R.id.send_data) {
             String clientMessage = edMessage.getText().toString().trim();
-            showMessage(clientMessage, Color.BLUE);
+            showMessage(clientMessage, Color.BLUE, false);
             if (null != clientThread) {
-                clientThread.sendMessage(clientMessage);
+                if (null == clientMessage){
+                    clientThread.sendMessage(clientMessage);
+                }
+                edMessage.setText("");
             }
         }
     }
 
-    /* clientThread class defined to run the client connection to the socket network using the server ip and port */
+    /* clientThread class defined to run the client connection to the socket network using the server ip and port
+     * and send message */
     class ClientThread implements Runnable {
 
         private Socket socket;
@@ -108,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
                     String message = input.readLine();
                     if (null == message || "Disconnect".contentEquals(message)) {
                         Thread.interrupted();
-                        message = "Server Disconnected.";
-                        showMessage(message, Color.RED);
+                        message = "Server Disconnected...";
+                        showMessage(message, Color.RED, false);
                         break;
                     }
-                    showMessage("Server: " + message, clientTextColor);
+                    showMessage("Server: " + message, clientTextColor, true);
                 }
 
             } catch (UnknownHostException e1) {
