@@ -6,7 +6,7 @@ to demonstrate communication between different applications on different devices
 ## Installation
 * Clone this repository and import into two instances of **Android Studio**
   ```bash
-   git clone git@github.com:wizzywit/android-socket-programming.git
+   git clone git@github.com:wizzywit/Android-Socket-Programming.git
   ```
 ### On the server-side project of the **Android Studio**
   * Connect the android device to your PC
