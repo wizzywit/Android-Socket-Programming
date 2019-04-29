@@ -18,10 +18,11 @@ to demonstrate communication between different applications on different devices
   * Change the SERVER_IP of the Code snippet bellow to the installed server device
     ```java
     public class MainActivity extends AppCompatActivity {
-
-    public static final int SERVER_PORT = 5050;
-
-    public static final String SERVER_IP = "192.168.43.212";
+    //initialize to any specified port between 1024 to 65535
+    public static final int SERVER_PORT = ;
+    
+    //get the IP of the server Device and replace below
+    public static final String SERVER_IP = "Replace IP Address here";
     private ClientThread clientThread;
     private Thread thread;
     private LinearLayout msgList;
