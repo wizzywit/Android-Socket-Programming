@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -18,17 +19,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int SERVER_PORT = 5005;
+    public static final int SERVER_PORT = 5050;
 
-    public static final String SERVER_IP = "127.0.0.1";
+    public static final String SERVER_IP = "192.168.43.212";
     private ClientThread clientThread;
     private Thread thread;
     private LinearLayout msgList;
@@ -78,11 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (view.getId() == R.id.connect_server) {
             msgList.removeAllViews();
-            showMessage("Connecting to Server...", clientTextColor, true);
             clientThread = new ClientThread();
             thread = new Thread(clientThread);
             thread.start();
-            showMessage("Connected to Server...", clientTextColor, true);
             return;
         }
 
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             String clientMessage = edMessage.getText().toString().trim();
             showMessage(clientMessage, Color.BLUE, false);
             if (null != clientThread) {
-                if (null == clientMessage){
+                if (clientMessage.length() > 0){
                     clientThread.sendMessage(clientMessage);
                 }
                 edMessage.setText("");
@@ -109,10 +111,20 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
 
             try {
-                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-                socket = new Socket(serverAddr, SERVER_PORT);
 
-                while (!Thread.currentThread().isInterrupted()) {
+                    InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+                    showMessage("Connecting to Server...", clientTextColor, true);
+
+                    socket = new Socket(serverAddr, SERVER_PORT);
+
+                    if (socket.isBound()){
+
+                        showMessage("Connected to Server...", clientTextColor, true);
+                    }
+
+
+        while (!Thread.currentThread().isInterrupted()) {
+
 
                     this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String message = input.readLine();
@@ -128,7 +140,11 @@ public class MainActivity extends AppCompatActivity {
             } catch (UnknownHostException e1) {
                 e1.printStackTrace();
             } catch (IOException e1) {
+                showMessage("Problem Connecting to server... Check your server IP and Port and try again", Color.RED, false);
+                Thread.interrupted();
                 e1.printStackTrace();
+            } catch (NullPointerException e3) {
+                showMessage("error returned", Color.RED,true);
             }
 
         }

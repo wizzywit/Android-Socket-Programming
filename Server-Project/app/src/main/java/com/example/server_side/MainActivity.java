@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity  {
     Thread serverThread = null;
 
     //the SERVER_PORT is initialized which must correspond to the port of the client
-    public static final int SERVER_PORT = 5005;
+    public static final int SERVER_PORT = 5050;
 
     //the msgList is initialized corresponding to the Linearlayout
     private LinearLayout msgList;
@@ -105,7 +104,7 @@ public class MainActivity extends AppCompatActivity  {
         if (view.getId() == R.id.send_data) {
             String msg = edMessage.getText().toString().trim();
             showMessage("Server : " + msg, Color.BLUE, false);
-            if (msg != null) {
+            if (msg.length() > 0) {
 
                 sendMessage(msg);
             }
@@ -187,7 +186,7 @@ public class MainActivity extends AppCompatActivity  {
                 e.printStackTrace();
                 showMessage("Error Connecting to Client!!", Color.RED, false);
             }
-            showMessage("Connected to Client!!", greenColor, false);
+            showMessage("Connected to Client!!", greenColor, true);
         }
 
         public void run() {
@@ -199,7 +198,7 @@ public class MainActivity extends AppCompatActivity  {
                     String read = input.readLine();
                     if (null == read || "Disconnect".contentEquals(read)) {
                         Thread.interrupted();
-                        read = "Lost Communication with Client....";
+                        read = "Offline....";
                         showMessage("Client : " + read, greenColor, true);
                         break;
                     }
