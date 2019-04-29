@@ -79,6 +79,7 @@ From Android Studio:
 ## Maintainers
 This project is mantained by:
 * [Wisdom Praise](http://github.com/wizzywit)
+* [Diretnan Domnan] (http://github.com/deven96)
 
 
 ## Contributing
